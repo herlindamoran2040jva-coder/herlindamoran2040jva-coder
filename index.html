@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ThinkLab Matemático 2040</title>
+
+  <!-- Paleta amable y accesible -->
+  <style>
+    :root{
+      --bg:#f7fbff;
+      --card:#ffffff;
+      --text:#172b4d;
+      --muted:#62748a;
+      --primary:#2962ff;
+      --primary-700:#1d4ed8;
+      --accent:#ffcc00;
+      --success:#12b981;
+      --danger:#ef4444;
+      --focus:#22d3ee;
+      --rounded:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      color:var(--text);
+      background:linear-gradient(180deg, #f7fbff 0%, #eaf4ff 100%);
+    }
+
+    /* Layout */
+    header{
+      background: radial-gradient(circle at 10% 10%, var(--accent) 0%, #ffe88a 50%, #fff6c7 100%);
+      border-bottom: 4px solid #ffd84d;
+      padding: 24px 16px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:16px; max-width:1100px; margin:0 auto;
+    }
+    .logo{
+      width:64px; height:64px; border-radius:50%;
+      background: conic-gradient(from 230deg, var(--primary) 0 30%, #7c3aed 30% 60%, #10b981 60% 100%);
+      box-shadow: 0 6px 18px rgba(0,0,0,.12);
+      position:relative;
+    }
+    .logo::after{
+      content:"π"; position:absolute; inset:0; display:grid; place-items:center;
+      font-weight:700; color:#fff; font-size:28px; text-shadow:0 2px 6px rgba(0,0,0,.25);
+    }
+    h1{
+      margin:0;
+      font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+      line-height:1.1;
+    }
+    .subtitle{
+      margin:6px 0 0; color:#4b5563; font-size:clamp(.9rem, 2.2vw, 1.05rem);
+    }
+
+    .wrap{max-width:1100px; margin:24px auto; padding:0 16px;}
+    .toolbar{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px;
+    }
+    .search{
+      flex:1 1 220px; display:flex; gap:8px;
+    }
+    .search input{
+      width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #c5d5ea; background:#fff;
+    }
+    .search button{
+      padding:12px 14px; border-radius:12px; border:none; background:var(--primary); color:#fff; cursor:pointer;
+    }
+    .search button:focus, .tab:focus, .btn:focus, input:focus, textarea:focus, select:focus{
+      outline:3px solid var(--focus); outline-offset:2px;
+    }
+
+    /* Tabs */
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap; border-bottom:2px dashed #cfe3ff; padding-bottom:8px; margin-bottom:16px;
+    }
+    .tab{
+      appearance:none; border:none; background:#fff; color:var(--text);
+      padding:10px 14px; border-radius:999px; cursor:pointer;
+      box-shadow:0 2px 6px rgba(0,0,0,.06); border:1.5px solid #e3eeff;
+    }
+    .tab[aria-selected="true"]{
+      background:var(--primary); color:#fff; border-color:var(--primary-700);
+    }
+
+    /* Panels */
+    .panel{display:none}
+    .panel.active{display:block}
+
+    /* Cards */
+    .grid{
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px;
+    }
+    .card{
+      background:var(--card); border-radius:var(--rounded);
+      box-shadow:0 6px 18px rgba(32,74,135,.12);
+      padding:14px; border:1px solid #e7eef9;
+    }
+    .card h3{margin:0 0 8px; font-size:1.05rem}
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      background:#eef5ff; color:#1f3b76; border:1px solid #cfe3ff;
+      border-radius:999px; padding:6px 10px; font-size:.85rem; margin-bottom:10px;
+    }
+    .meta{color:var(--muted); font-size:.9rem; margin:6px 0 10px}
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:12px; border:1.5px solid #cfe3ff;
+      background:#fff; color:var(--text); cursor:pointer;
+    }
+    .btn.primary{background:var(--primary); color:#fff; border-color:var(--primary-700)}
+    .btn.success{background:var(--success); color:#fff; border-color:#0f9b6b}
+    .btn.danger{background:var(--danger); color:#fff; border-color:#d63b3b}
+    .row-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+
+    /* Publish form */
+    form.publish{
+      background:var(--card); border:1px solid #e7eef9; border-radius:var(--rounded);
+      padding:16px; box-shadow:0 6px 18px rgba(32,74,135,.12);
+      display:grid; gap:12px;
+    }
+    label{font-weight:600}
+    input[type="text"], input[type="url"], select, textarea{
+      width:100%; padding:10px 12px; border-radius:12px; border:1.5px solid #cfe3ff; background:#fff;
+    }
+    textarea{min-height:110px; resize:vertical}
+    .two{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px}
+    .help{color:#4b5563; font-size:.92rem}
+    .notice{
+      background:#f0f9ff; border:1px dashed #7dd3fc; color:#0c4a6e;
+      padding:10px 12px; border-radius:12px; font-size:.92rem;
+    }
+
+    /* Footer */
+    footer{
+      margin-top:28px; padding:16px; text-align:center; color:#4b5563;
+    }
+
+    /* A11y prefers-reduced-motion */
+    @media (prefers-reduced-motion: no-preference){
+      .tab{transition: all .18s ease}
+      .card{transition: transform .18s ease}
+      .card:hover{transform: translateY(-2px)}
+    }
+  </style>
+</head>
+
+<body>
+  <header role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>ThinkLab Matemático 2040</h1>
+        <p class="subtitle">Explora, juega y crea recursos de matemática para niños de inicial y primaria.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" role="main">
+    <!-- Barra de búsqueda y acciones rápidas -->
+    <div class="toolbar" aria-label="Barra de herramientas">
+      <div class="search" role="search">
+        <input id="q" type="text" placeholder="Busca juegos, actividades o retos..." aria-label="Buscar recursos" />
+        <button id="btnSearch" type="button" aria-label="Ejecutar búsqueda">Buscar</button>
+      </div>
+      <button class="btn primary" type="button" aria-controls="panel-publicar" aria-label="Ir a publicar">+ Publicar recurso</button>
+      <button class="btn" type="button" aria-controls="panel-docentes">Guía para docentes</button>
+    </div>
+
+    <!-- Navegación por pestañas -->
+    <div class="tabs" role="tablist" aria-label="Secciones de recursos">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="panel-juegos" id="tab-juegos">Juegos</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-actividades" id="tab-actividades">Actividades</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-cuentos" id="tab-cuentos">Cuentos</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-retos" id="tab-retos">Retos</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-docentes" id="tab-docentes">Recursos para docentes</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-publicar" id="tab-publicar">Publicar</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-moderacion" id="tab-moderacion">Moderación</button>
+    </div>
+
+    <!-- Panel: Juegos -->
+    <section id="panel-juegos" class="panel active" role="tabpanel" aria-labelledby="tab-juegos">
+      <div class="grid">
+        <article class="card">
+          <span class="badge">Inicial • Conteo</span>
+          <h3>Safari de números</h3>
+          <p class="meta">Encuentra animales y cuenta del 1 al 10. Usa fichas y movimientos.</p>
+          <div class="row-actions">
+            <button class="btn success" type="button">Jugar ahora</button>
+            <button class="btn" type="button">Descargar guía</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+        <article class="card">
+          <span class="badge">Primaria • Suma y resta</span>
+          <h3>Mercadito mágico</h3>
+          <p class="meta">Simula compras: suma precios, calcula cambio y construye problemas.</p>
+          <div class="row-actions">
+            <button class="btn success" type="button">Jugar ahora</button>
+            <button class="btn" type="button">Imprimir tarjetas</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+        <article class="card">
+          <span class="badge">Primaria • Geometría</span>
+          <h3>Construye tu ciudad</h3>
+          <p class="meta">Usa figuras para crear parques, casas y caminos reconociendo formas.</p>
+          <div class="row-actions">
+            <button class="btn success" type="button">Jugar ahora</button>
+            <button class="btn" type="button">Plantillas</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel: Actividades -->
+    <section id="panel-actividades" class="panel" role="tabpanel" aria-labelledby="tab-actividades">
+      <div class="grid">
+        <article class="card">
+          <span class="badge">Inicial • Clasificación</span>
+          <h3>Arcoíris de bloques</h3>
+          <p class="meta">Clasifica por color y tamaño, cuenta grupos y compara cantidades.</p>
+          <div class="row-actions">
+            <button class="btn primary" type="button">Ver paso a paso</button>
+            <button class="btn" type="button">Rubrica</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+        <article class="card">
+          <span class="badge">Primaria • Medición</span>
+          <h3>Chef de medidas</h3>
+          <p class="meta">Usa recipientes para comprender unidades de capacidad y masa.</p>
+          <div class="row-actions">
+            <button class="btn primary" type="button">Ver receta</button>
+            <button class="btn" type="button">Ficha de evaluación</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+        <article class="card">
+          <span class="badge">Primaria • Datos</span>
+          <h3>Encuesta feliz</h3>
+          <p class="meta">Recolecta datos de gustos y crea pictogramas y gráficas sencillas.</p>
+          <div class="row-actions">
+            <button class="btn primary" type="button">Plantillas</button>
+            <button class="btn" type="button">Rúbrica</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel: Cuentos -->
+    <section id="panel-cuentos" class="panel" role="tabpanel" aria-labelledby="tab-cuentos">
+      <div class="grid">
+        <article class="card">
+          <span class="badge">Inicial • Lenguaje matemático</span>
+          <h3>La mochila de los números</h3>
+          <p class="meta">Un relato para introducir cantidad, orden y comparación en la vida cotidiana.</p>
+          <div class="row-actions">
+            <button class="btn primary" type="button">Leer cuento</button>
+            <button class="btn" type="button">Audios</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+        <article class="card">
+          <span class="badge">Primaria • Problemas</span>
+          <h3>El puente de las figuras</h3>
+          <p class="meta">Historia que reta a resolver problemas con triángulos y rectángulos.</p>
+          <div class="row-actions">
+            <button class="btn primary" type="button">Leer cuento</button>
+            <button class="btn" type="button">Guía docente</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel: Retos -->
+    <section id="panel-retos" class="panel" role="tabpanel" aria-labelledby="tab-retos">
+      <div class="grid">
+        <article class="card">
+          <span class="badge">Diario • 10 min</span>
+          <h3>Reto relámpago</h3>
+          <p class="meta">Completa 5 sumas y 5 restas con números de 0–20. ¡Cronómetro en marcha!</p>
+          <div class="row-actions">
+            <button class="btn success" type="button">Iniciar</button>
+            <button class="btn" type="button">Imprimir ficha</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+        <article class="card">
+          <span class="badge">Semanal • Proyecto</span>
+          <h3>Diseña tu parque</h3>
+          <p class="meta">Calcula perímetros y áreas para un parque de barrio con presupuesto fijo.</p>
+          <div class="row-actions">
+            <button class="btn success" type="button">Iniciar</button>
+            <button class="btn" type="button">Plantilla</button>
+            <button class="btn" type="button">Comentar</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel: Recursos para docentes -->
+    <section id="panel-docentes" class="panel" role="tabpanel" aria-labelledby="tab-docentes">
+      <div class="notice" role="note">
+        Sugerencia: adapta cada recurso a formatos visual, oral y manipulativo; usa evaluación formativa con retroalimentación breve y motivadora.
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <article class="card">
+          <span class="badge">Instrumentos</span>
+          <h3>Rúbricas de pensamiento matemático</h3>
+          <p class="meta">Criterios para comunicación, razonamiento y resolución de problemas.</p>
+          <div class="row-actions">
+            <button class="btn primary" type="button">Descargar</button>
+            <button class="btn" type="button">Ver ejemplo</button>
+          </div>
+        </article>
+        <article class="card">
+          <span class="badge">Planificación</span>
+          <h3>Secuencias por grados</h3>
+          <p class="meta">Itinerarios sugeridos para Inicial, 1.º–3.º con integración lúdica.</p>
+          <div class="row-actions">
+            <button class="btn primary" type="button">Descargar</button>
+            <button class="btn" type="button">Ver ejemplo</button>
+          </div>
+        </article>
+        <article class="card">
+          <span class="badge">Familias</span>
+          <h3>Guías para casa</h3>
+          <p class="meta">Mini actividades con materiales del hogar y consejos de acompañamiento.</p>
+          <div class="row-actions">
+            <button class="btn primary" type="button">Descargar</button>
+            <button class="btn" type="button">Ver ejemplo</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel: Publicar -->
+    <section id="panel-publicar" class="panel" role="tabpanel" aria-labelledby="tab-publicar">
+      <form class="publish" aria-label="Formulario para publicar recurso" onsubmit="return false;">
+        <h2 style="margin:0 0 6px;">Publica tu recurso</h2>
+        <p class="help">Comparte un juego, actividad, cuento o reto. Revisa que sea claro, seguro y apropiado para Inicial/Primaria.</p>
+
+        <div class="two">
+          <div>
+            <label for="tipo">Tipo de recurso</label>
+            <select id="tipo" required>
+              <option value="">Selecciona...</option>
+              <option>Juego</option>
+              <option>Actividad</option>
+              <option>Cuento</option>
+              <option>Reto</option>
+            </select>
+          </div>
+          <div>
+            <label for="nivel">Nivel</label>
+            <select id="nivel" required>
+              <option value="">Selecciona...</option>
+              <option>Inicial</option>
+              <option>Primaria</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two">
+          <div>
+            <label for="titulo">Título</label>
+            <input id="titulo" type="text" placeholder="Ej. Carrera de dados" required />
+          </div>
+          <div>
+            <label for="duracion">Duración</label>
+            <input id="duracion" type="text" placeholder="Ej. 15–20 min" />
+          </div>
+        </div>
+
+        <div>
+          <label for="objetivo">Objetivo matemático</label>
+          <input id="objetivo" type="text" placeholder="Ej. sumas de 0–20, patrones, figuras básicas..." />
+        </div>
+
+        <div>
+          <label for="materiales">Materiales</label>
+          <textarea id="materiales" placeholder="Lista breve (dados, fichas, tarjetas, papel, lápices...)"></textarea>
+        </div>
+
+        <div>
+          <label for="pasos">Pasos y variantes</label>
+          <textarea id="pasos" placeholder="Describe cómo jugar, variantes para diferentes niveles, y cómo cerrar con reflexión."></textarea>
+        </div>
+
+        <div class="two">
+          <div>
+            <label for="enlace">Enlace (opcional)</label>
+            <input id="enlace" type="url" placeholder="https://..." />
+          </div>
+          <div>
+            <label for="autor">Autor/a</label>
+            <input id="autor" type="text" placeholder="Tu nombre" />
+          </div>
+        </div>
+
+        <div class="two">
+          <button class="btn success" type="submit" id="btnPublicar">Publicar</button>
+          <button class="btn" type="reset">Limpiar</button>
+        </div>
+        <p class="notice">Al publicar, aceptas que el equipo modere para proteger a niñas y niños. No compartas datos personales ni imágenes sensibles.</p>
+      </form>
+
+      <!-- Vista previa (se llena con JS) -->
+      <div id="preview" class="grid" style="margin-top:14px" aria-live="polite" aria-label="Vista previa de recursos publicados"></div>
+    </section>
+
+    <!-- Panel: Moderación -->
+    <section id="panel-moderacion" class="panel" role="tabpanel" aria-labelledby="tab-moderacion">
+      <div class="card">
+        <h3>Guía rápida de moderación</h3>
+        <ul style="margin:8px 0 0; padding-left:18px">
+          <li><strong>Claridad:</strong> instrucciones simples, inclusivas y con variantes.</li>
+          <li><strong>Seguridad:</strong> sin riesgos físicos, sin datos personales, lenguaje respetuoso.</li>
+          <li><strong>Pertinencia:</strong> alineado a Inicial/Primaria, materiales accesibles.</li>
+          <li><strong>Evaluación formativa:</strong> preguntas de cierre y retroalimentación positiva.</li>
+        </ul>
+        <div class="row-actions" style="margin-top:10px">
+          <button class="btn primary" type="button">Ver checklist</button>
+          <button class="btn" type="button">Plantilla de revisión</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      ThinkLab Matemático 2040 • Comunidad que aprende jugando, creando y pensando.
+    </footer>
+  </main>
+
+  <!-- Interacciones básicas -->
+  <script>
+    // Manejo de pestañas accesibles
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+
+    function activateTab(tab){
+      tabs.forEach(t=>{
+        const selected = t === tab;
+        t.setAttribute('aria-selected', selected ? 'true' : 'false');
+      });
+      panels.forEach(p=>{
+        p.classList.toggle('active', p.id === tab.getAttribute('aria-controls'));
+      });
+      // Enfoca el primer elemento interactivo del panel
+      const targetPanel = document.getElementById(tab.getAttribute('aria-controls'));
+      const focusable = targetPanel.querySelector('button, input, select, textarea, a');
+      if (focusable) focusable.focus({preventScroll:true});
+    }
+
+    tabs.forEach(tab=>{
+      tab.addEventListener('click', ()=>activateTab(tab));
+      tab.addEventListener('keydown', (e)=>{
+        const order = Array.from(tabs);
+        const i = order.indexOf(tab);
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          const next = order[(i+1) % order.length];
+          next.focus(); activateTab(next);
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const prev = order[(i-1+order.length) % order.length];
+          prev.focus(); activateTab(prev);
+        }
+      });
+    });
+
+    // Búsqueda simple de texto en tarjetas visibles
+    document.getElementById('btnSearch').addEventListener('click', ()=>{
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      const activePanel = document.querySelector('.panel.active');
+      const cards = activePanel.querySelectorAll('.card, article.card');
+      cards.forEach(c=>{
+        const text = c.innerText.toLowerCase();
+        c.style.display = q ? (text.includes(q) ? '' : 'none') : '';
+      });
+    });
+
+    // Publicar: genera una tarjeta de vista previa en el panel de Publicar
+    document.getElementById('btnPublicar').addEventListener('click', ()=>{
+      const tipo = document.getElementById('tipo').value;
+      const nivel = document.getElementById('nivel').value;
+      const titulo = document.getElementById('titulo').value.trim();
+      const duracion = document.getElementById('duracion').value.trim();
+      const objetivo = document.getElementById('objetivo').value.trim();
+      const materiales = document.getElementById('materiales').value.trim();
+      const pasos = document.getElementById('pasos').value.trim();
+      const enlace = document.getElementById('enlace').value.trim();
+      const autor = document.getElementById('autor').value.trim();
+
+      if(!tipo || !nivel || !titulo){
+        alert('Completa tipo, nivel y título para publicar.');
+        return;
+      }
+
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.innerHTML = `
+        <span class="badge">${nivel} • ${tipo}</span>
+        <h3>${titulo}</h3>
+        <p class="meta">${duracion ? duracion + ' • ' : ''}${objetivo || 'Objetivo por definir'}</p>
+        <p><strong>Materiales:</strong> ${materiales || '—'}</p>
+        <p><strong>Pasos:</strong> ${pasos || '—'}</p>
+        ${enlace ? `<p><a href="${enlace}" target="_blank" rel="noopener">Ver recurso</a></p>` : ''}
+        <div class="row-actions">
+          <button class="btn" type="button">Comentar</button>
+          <button class="btn primary" type="button">Guardar</button>
+        </div>
+        <p class="meta">Autor/a: ${autor || 'Anónimo/a'}</p>
+      `;
+      document.getElementById('preview').prepend(card);
+      alert('Tu recurso se publicó en la vista previa. ¡Gracias por compartir!');
+    });
+
+    // Atajos desde la barra superior
+    document.querySelector('[aria-controls="panel-publicar"]').addEventListener('click', ()=>{
+      const tab = document.getElementById('tab-publicar');
+      tab.focus(); activateTab(tab);
+    });
+    document.querySelector('[aria-controls="panel-docentes"]').addEventListener('click', ()=>{
+      const tab = document.getElementById('tab-docentes');
+      tab.focus(); activateTab(tab);
+    });
+  </script>
+</body>
+</html>
